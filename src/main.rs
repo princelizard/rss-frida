@@ -10,8 +10,8 @@ async fn main() -> Result<(), slint::platform::PlatformError> {
 }
 
 fn create_file(){
-    if !fs::exists("feeds.json").unwrap(){
-        File::create("feeds.json").expect("Failed to create feeds.json");
+    if !fs::exists("feeds.json").expect("Should be able to access file system."){
+        File::create("feeds.json").expect("Should be able to create file.");
     }
 }
 
