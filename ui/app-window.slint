@@ -1,3 +1,26 @@
+
 export component MainWindow inherits Window {
+    property <bool> show-new-feed-dialog: false;
+
+    min-height: 480px;
+    min-width: 640px;
+    
+    MenuBar {
+        Menu {
+            title: @tr("File");
+            MenuItem {
+                title: @tr("New Feed...");
+                activated => {show-new-feed-dialog = true;}
+            }
+        }
+    }
+
+    if show-new-feed-dialog: Rectangle{
+        height: 200px;
+        width: 300px;
+        background: #ffffff;
+    }
+
+
 
 }
