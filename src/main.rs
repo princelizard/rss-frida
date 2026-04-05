@@ -1,4 +1,5 @@
 use std::fs::{self, File};
+use std::io::Write;
 
 use rss::Channel;
 slint::include_modules!();
@@ -39,5 +40,6 @@ async fn add_feed(feed_url: String){
         description: channel.description().to_string(),
     };
     let json = serde_json::to_string(&feed).unwrap();
-    fs::write("feeds.json", json).expect("Failed to write to feeds.json");
+    let mut file = File::options().append(true).open("feeds.json").unwrap();
+    writeln!(file, "{}", json).unwrap();
 }
