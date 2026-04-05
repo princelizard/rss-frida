@@ -1,6 +1,9 @@
 
+import { ScrollView, LineEdit, StandardButton } from "std-widgets.slint";
 export component MainWindow inherits Window {
     property <bool> show-new-feed-dialog: false;
+    callback submit-feed(string);
+
 
     min-height: 480px;
     min-width: 640px;
@@ -16,11 +19,29 @@ export component MainWindow inherits Window {
     }
 
     if show-new-feed-dialog: Rectangle{
-        height: 200px;
+        height: 120px;
         width: 300px;
-        background: #ffffff;
+        background: parent.background.darker(0.2);
+        feed_url := LineEdit {
+            width: 200px;
+            placeholder-text: @tr("Feed URL");
+        }
+        HorizontalLayout {
+            height: 30px;
+            alignment: center;
+            y: parent.height - self.height - 10px;
+            x: (parent.width - self.width) / 2;
+            spacing: 5px;
+            StandardButton {
+                kind: ok;
+                width: 80px;
+                clicked => {submit-feed(feed_url.text); show-new-feed-dialog = false;}
+            }
+            StandardButton {
+                kind: cancel;
+                width: 80px;
+                clicked => {show-new-feed-dialog = false;}
+            }
+        }       
     }
-
-
-
 }
