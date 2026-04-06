@@ -18,6 +18,15 @@ export component MainWindow inherits Window {
         }
     }
 
+    channel_box := Rectangle {
+        width: 200px;
+        background: parent.background.darker(0.5);
+        x:10px;
+        ScrollView {
+        
+        }
+    }
+
     if show-new-feed-dialog: Rectangle{
         height: 120px;
         width: 300px;
