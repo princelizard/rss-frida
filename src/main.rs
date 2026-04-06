@@ -39,6 +39,7 @@ async fn add_feed(feed_url: String){
         link: channel.link().to_string(),
         description: channel.description().to_string(),
     };
+    
     let json = serde_json::to_string(&feed).unwrap();
     let mut file = File::options().append(true).open("feeds.json").unwrap();
     writeln!(file, "{}", json).unwrap();
