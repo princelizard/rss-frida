@@ -1,9 +1,18 @@
 
 import { ScrollView, LineEdit, StandardButton } from "std-widgets.slint";
+
+export component ChannelBox inherits Rectangle {
+    in-out property <string> title;
+    in-out property <string> link;
+    in-out property <string> description;
+
+    Text {
+        text: title;
+    }
+}
 export component MainWindow inherits Window {
     property <bool> show-new-feed-dialog: false;
     callback submit-feed(string);
-
 
     min-height: 480px;
     min-width: 640px;
@@ -24,7 +33,11 @@ export component MainWindow inherits Window {
         background: parent.background.darker(0.5);
         x:10px;
         ScrollView {
-        
+            ChannelBox {
+                title: "Example Channel";
+                link: "https://example.com/feed";
+                description: "This is an example feed description.";
+            }
         }
     }
 
