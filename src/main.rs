@@ -48,6 +48,5 @@ fn generate_hashmap() -> HashMap<String, String> {
         hashmap.insert(feed.title, feed.link);
 
     }
-    println!("{:?}", hashmap);
     hashmap
 }
