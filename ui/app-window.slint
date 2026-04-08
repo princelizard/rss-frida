@@ -1,18 +1,27 @@
 
 import { ScrollView, LineEdit, StandardButton } from "std-widgets.slint";
 
-export component ChannelBox inherits Rectangle {
-    in-out property <string> title;
-    in-out property <string> link;
-    in-out property <string> description;
+export struct ChannelData {
+    title: string,
+    url: string,
+}
 
-    Text {
-        text: title;
+export component ChannelBox inherits Rectangle {
+    height: 30px;
+    background: purple;
+    in property <ChannelData> channel;
+    TouchArea {}
+        Text {
+        color: white;
+        text: channel.title;
     }
+
 }
 export component MainWindow inherits Window {
     title: @tr("rss-frida");
     property <bool> show-new-feed-dialog: false;
+    in property <[ChannelData]> channels;
+
     callback submit-feed(string);
 
     min-height: 480px;
@@ -28,44 +37,46 @@ export component MainWindow inherits Window {
         }
     }
 
-    channel_box := Rectangle {
-        width: 200px;
-        height: parent.height - 30px;
-        background: parent.background.darker(0.5);
-        x:10px;
+    ChannelBoxBox := Rectangle {
+        x: 10px;
+        width: 300px;
+        background: parent.background.darker(0.05);
+        
         ScrollView {
-            ChannelBox {
-                title: "";
-                link: "https://example.com/feed";
-                description: "This is an example feed description.";
+            VerticalLayout {
+                for channel in root.channels:
+                    ChannelBox {
+                        channel: channel;
+                    }
             }
         }
     }
 
-    if show-new-feed-dialog: Rectangle{
-        height: 120px;
-        width: 300px;
-        background: parent.background.darker(0.2);
-        feed_url := LineEdit {
+    if show-new-feed-dialog: 
+        Rectangle{
+            height: 120px;
+            width: 300px;
+            background: parent.background.darker(0.2);
+            feed_url := LineEdit {
             width: 200px;
             placeholder-text: @tr("Feed URL");
         }
-        HorizontalLayout {
-            height: 30px;
-            alignment: center;
-            y: parent.height - self.height - 10px;
-            x: (parent.width - self.width) / 2;
-            spacing: 5px;
-            StandardButton {
-                kind: ok;
-                width: 80px;
-                clicked => {submit-feed(feed_url.text); show-new-feed-dialog = false;}
-            }
-            StandardButton {
-                kind: cancel;
-                width: 80px;
-                clicked => {show-new-feed-dialog = false;}
-            }
-        }       
+            HorizontalLayout {
+                height: 30px;
+                alignment: center;
+                y: parent.height - self.height - 10px;
+                x: (parent.width - self.width) / 2;
+                spacing: 5px;
+                StandardButton {
+                    kind: ok;
+                    width: 80px;
+                    clicked => {submit-feed(feed_url.text); show-new-feed-dialog = false;}
+                }
+                StandardButton {
+                    kind: cancel;
+                    width: 80px;
+                    clicked => {show-new-feed-dialog = false;}
+                }
+            }       
     }
 }

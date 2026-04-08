@@ -2,6 +2,7 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::collections::HashMap;
 use rss::Channel;
+use slint::{VecModel, ModelRc};
 
 slint::include_modules!();
 
@@ -16,6 +17,8 @@ struct Feed {
 async fn main() -> Result<(), slint::platform::PlatformError> {
     let ui = MainWindow::new().unwrap();
     let mut channels_map = generate_hashmap();
+
+    populate_channels(&channels_map, &ui);
 
     ui.on_submit_feed(move |feed_url| {
         let feed_url = feed_url.to_string();
@@ -46,7 +49,16 @@ fn generate_hashmap() -> HashMap<String, String> {
     for line in contents.lines() {
         let feed: Feed = serde_json::from_str(line).unwrap();
         hashmap.insert(feed.title, feed.link);
-
     }
+    
     hashmap
+}
+
+fn populate_channels(map: &HashMap<String, String>, ui: &MainWindow) {
+    let channels: Vec<ChannelData> = map.iter().map(|(title, link)| ChannelData {
+        title: title.into(),
+        url: link.into(),
+    }).collect();
+    let model = ModelRc::new(VecModel::from(channels));
+    ui.set_channels(model);
 }
