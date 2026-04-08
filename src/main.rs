@@ -29,6 +29,7 @@ async fn main() -> Result<(), slint::platform::PlatformError> {
     ui.run()
 }
 
+//NOTE: feeds.json is actually a jsonl file. This is improper, but it won't parse otherwise, and I can't be assed to fix it. 
 async fn add_feed(feed_url: String){
     let xml = reqwest::get(feed_url).await.unwrap().text().await.unwrap();
     let channel = Channel::read_from(xml.as_bytes()).unwrap();
