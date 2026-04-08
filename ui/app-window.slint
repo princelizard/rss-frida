@@ -9,11 +9,11 @@ export struct ChannelData {
 export component ChannelBox inherits Rectangle {
     height: 30px;
     background: purple;
-    in property <ChannelData> channel;
+    in property <ChannelData> channelInfo;
     TouchArea {}
         Text {
         color: white;
-        text: channel.title;
+        text: channelInfo.title;
     }
 
 }
@@ -46,7 +46,7 @@ export component MainWindow inherits Window {
             VerticalLayout {
                 for channel in root.channels:
                     ChannelBox {
-                        channel: channel;
+                        channelInfo: channel;
                     }
             }
         }
