@@ -45,8 +45,7 @@ async fn add_feed(feed_url: String){
 
 fn generate_hashmap() -> HashMap<String, String> {
     let contents = fs::read_to_string("feeds.json").unwrap();
-    let hashmap = contents.lines()
-        .filter_map(|line| {
+    let hashmap = contents.lines().filter_map(|line| {
             let feed: Feed = serde_json::from_str(line).unwrap();
             Some((feed.title, feed.link))
         })
