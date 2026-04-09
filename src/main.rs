@@ -57,8 +57,8 @@ fn generate_hashmap() -> HashMap<String, String> {
 
 fn populate_channels(map: &HashMap<String, String>, ui: &MainWindow) {
     let channels: Vec<ChannelData> = map.iter().map(|(title, link)| ChannelData {
-        title: title.into(),
-        url: link.into(),
+        channel_title: title.into(),
+        channel_url: link.into(),
     }).collect();
     let model = ModelRc::new(VecModel::from(channels));
     ui.set_channels(model);

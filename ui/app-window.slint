@@ -2,25 +2,48 @@
 import { ScrollView, LineEdit, StandardButton } from "std-widgets.slint";
 
 export struct ChannelData {
-    title: string,
-    url: string,
+    channel_title: string,
+    channel_url: string,
+}
+
+export struct EpisodeData {
+    episode_title: string,
+    episode_url: string,
 }
 
 export component ChannelBox inherits Rectangle {
     height: 30px;
     background: purple;
     in property <ChannelData> channelInfo;
+    
     TouchArea {}
-        Text {
+    
+    Text {
         color: white;
-        text: channelInfo.title;
+        horizontal-alignment: left;
+        text: channelInfo.channel_title;   
     }
-
 }
+
+export component EpisodeBox inherits Rectangle {
+    height: 30px;
+    background: green;
+    in property <EpisodeData> episodeInfo;
+    
+    TouchArea {}
+    
+    Text {
+        color: white;
+        horizontal-alignment: left;
+        text: episodeInfo.episode_title;   
+    }
+}
+
 export component MainWindow inherits Window {
     title: @tr("rss-frida");
     property <bool> show-new-feed-dialog: false;
     in property <[ChannelData]> channels;
+    in property <[EpisodeData]> episodes;
 
     callback submit-feed(string);
 
@@ -37,28 +60,40 @@ export component MainWindow inherits Window {
         }
     }
 
-    ChannelBoxBox := Rectangle {
-        x: 10px;
-        width: 300px;
-        background: parent.background.darker(0.05);
-        
-        ScrollView {
-            VerticalLayout {
-                for channel in root.channels:
-                    ChannelBox {
-                        channelInfo: channel;
-                    }
+    HorizontalLayout {
+        alignment: center;
+        spacing: 10px;
+
+        ChannelBoxBox := Rectangle {
+            width:  (640px / 2) - 10px;
+            background: root.background.darker(0.05);
+            
+            ScrollView {
+                VerticalLayout {
+                    for channel in root.channels:
+                        ChannelBox {
+                            channelInfo: channel;
+                        }
+                }
             }
         }
+    
+        EpisodeBoxBox := Rectangle {
+            width: (640px / 2) - 10px;
+            background: root.background.darker(0.05);
+        }
+    
     }
 
     if show-new-feed-dialog: 
-        Rectangle{
-            height: 120px;
+        new-feed-dialog := Rectangle{
+            height: 100px;
             width: 300px;
             background: parent.background.darker(0.2);
+            
             feed_url := LineEdit {
             width: 200px;
+            y: 15px;
             placeholder-text: @tr("Feed URL");
         }
             HorizontalLayout {
