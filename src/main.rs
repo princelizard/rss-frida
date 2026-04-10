@@ -22,16 +22,18 @@ async fn main() -> Result<(), slint::platform::PlatformError> {
 
     ui.on_submit_feed(move |feed_url| {
         let feed_url = feed_url.to_string();
-        tokio::spawn(async move {
-            add_feed(feed_url).await;
-        });
+        if feed_url.ends_with("xml") {
+            tokio::spawn(async move {
+                let _ = add_feed(feed_url).await;
+            });
+        }
     });
     ui.run()
 }
 
 //NOTE: feeds.json is actually a jsonl file. This is improper, but it won't parse otherwise, and I can't be assed to fix it. 
-async fn add_feed(feed_url: String){
-    let xml = reqwest::get(feed_url).await.unwrap().text().await.unwrap();
+async fn add_feed(feed_url: String) -> Result<(), reqwest::Error> {
+    let xml = reqwest::get(feed_url).await?.text().await?;
     let channel = Channel::read_from(xml.as_bytes()).unwrap();
     let feed = Feed {
         title: channel.title().to_string(),
@@ -42,6 +44,8 @@ async fn add_feed(feed_url: String){
     let json = serde_json::to_string(&feed).unwrap();
     let mut file = File::options().append(true).create(true).open("feeds.json").unwrap();
     writeln!(file, "{}", json).unwrap();
+    
+    Ok(())
 }
 
 fn generate_hashmap() -> HashMap<String, String> {

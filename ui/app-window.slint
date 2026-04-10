@@ -5,7 +5,7 @@ export struct ChannelData {
     channel_title: string,
     channel_url: string,
 }
-
+//TODO: add the thing to show all the episodes
 export struct EpisodeData {
     episode_title: string,
     episode_url: string,
@@ -77,7 +77,7 @@ export component MainWindow inherits Window {
                 }
             }
         }
-    
+//this is where the episodes will go
         EpisodeBoxBox := Rectangle {
             width: (640px / 2) - 10px;
             background: root.background.darker(0.05);
@@ -86,7 +86,8 @@ export component MainWindow inherits Window {
     }
 
     if show-new-feed-dialog: 
-        new-feed-dialog := Rectangle{
+        
+    new-feed-dialog := Rectangle{
             height: 100px;
             width: 300px;
             background: parent.background.darker(0.2);
