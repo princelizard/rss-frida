@@ -44,7 +44,7 @@ async fn add_feed(feed_url: String) -> Result<(), reqwest::Error> {
     let json = serde_json::to_string(&feed).unwrap();
     let mut file = File::options().append(true).create(true).open("feeds.json").unwrap();
     writeln!(file, "{}", json).unwrap();
-    
+    // should either regenerate hashmap or update it. do this by returning a true or hashmap reference or something. let the closure decide.
     Ok(())
 }
 
