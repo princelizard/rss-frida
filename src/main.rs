@@ -83,8 +83,9 @@ async fn populate_channels(map: Arc<Mutex<HashMap<String, String>>>, ui: &MainWi
         channel_title: title.into(),
         channel_url: link.into(),
     }).collect();
-    let model = ModelRc::new(VecModel::from(channels));
-    ui.set_channels(model);
+    
+    let channels = ModelRc::new(VecModel::from(channels));
+    ui.set_channels(channels);
 }
 
 async fn populate_episodes(channel_info: ChannelData, ui: slint::Weak<MainWindow>) {
@@ -94,5 +95,11 @@ async fn populate_episodes(channel_info: ChannelData, ui: slint::Weak<MainWindow
         audio_url: item.enclosure().map(|e| e.url().to_string()).unwrap_or_default().into(),
         episode_title: item.title().unwrap_or_default().to_string().into(),
     }).collect();
-    println!("{:?}", episodes);
+
+    slint::invoke_from_event_loop(move || {
+        if let Some(ui) = ui.upgrade() {
+            let episodes = ModelRc::new(VecModel::from(episodes));
+            ui.set_episodes(episodes);
+        }
+    }).unwrap();
 }
