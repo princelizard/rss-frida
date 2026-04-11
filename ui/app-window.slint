@@ -1,17 +1,17 @@
 
 import { ScrollView, LineEdit, StandardButton } from "std-widgets.slint";
 
-export struct ChannelData {
+struct ChannelData {
     channel_title: string,
     channel_url: string,
 }
 //TODO: add the thing to show all the episodes
-export struct EpisodeData {
+struct EpisodeData {
     episode_title: string,
     episode_url: string,
 }
 
-export component ChannelBox inherits Rectangle {
+component ChannelBox inherits Rectangle {
     height: 30px;
     background: purple;
     in property <ChannelData> channelInfo;
@@ -25,7 +25,7 @@ export component ChannelBox inherits Rectangle {
     }
 }
 
-export component EpisodeBox inherits Rectangle {
+component EpisodeBox inherits Rectangle {
     height: 30px;
     background: green;
     in property <EpisodeData> episodeInfo;
@@ -81,6 +81,15 @@ export component MainWindow inherits Window {
         EpisodeBoxBox := Rectangle {
             width: (640px / 2) - 10px;
             background: root.background.darker(0.05);
+
+            ScrollView {
+                VerticalLayout {
+                    for episode in root.episodes:
+                    EpisodeBox{
+                        episodeInfo: episode;
+                    }
+                }
+            }
         }
     
     }
