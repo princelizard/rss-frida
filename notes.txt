@@ -1,0 +1,1 @@
+This is a lot heavier on RAM than I wanted it to be. I've learned some since I started. Mostly that tokio is way more than what I need. and really, so is reqwest. After getting this thing functional I would very much like to get slim it down. What I'm saying is, probably the standard library has all the async features I need.
