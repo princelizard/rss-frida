@@ -18,13 +18,15 @@ async fn main() -> Result<(), slint::platform::PlatformError> {
     let ui = MainWindow::new().unwrap();
     let mut channels_map = generate_hashmap();
 
-    populate_channels(&channels_map, &ui);
+    populate_channels(&channels_map, &ui).await;
 
     ui.on_submit_feed(move |feed_url| {
         let feed_url = feed_url.to_string();
         if feed_url.ends_with("xml") {
             tokio::spawn(async move {
-                let _ = add_feed(feed_url).await;
+                if add_feed(feed_url).await.is_ok() {
+                    //code goes here
+                }
             });
         }
     });
@@ -59,7 +61,7 @@ fn generate_hashmap() -> HashMap<String, String> {
     hashmap
 }
 
-fn populate_channels(map: &HashMap<String, String>, ui: &MainWindow) {
+async fn populate_channels(map: &HashMap<String, String>, ui: &MainWindow) {
     let channels: Vec<ChannelData> = map.iter().map(|(title, link)| ChannelData {
         channel_title: title.into(),
         channel_url: link.into(),
