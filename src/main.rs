@@ -19,15 +19,18 @@ struct Feed {
 async fn main() -> Result<(), slint::platform::PlatformError> {
     let ui = MainWindow::new().unwrap();
     let channels_map = Arc::new(Mutex::new(generate_hashmap()));
-    
     populate_channels(channels_map.clone(), &ui).await;
 
+    
     ui.on_submit_feed(move |feed_url| {
+        let map_clone = Arc::clone(&channels_map);
         let feed_url = feed_url.to_string();
+        
         if feed_url.ends_with("xml") {
             tokio::spawn(async move {
                 if let Ok(feed) = add_feed(feed_url).await {
-                    //update channels 
+                    let mut map = map_clone.lock().await;
+                    map.insert(feed.title.clone(), feed.link.clone());
                 }
             });
         }
@@ -36,7 +39,7 @@ async fn main() -> Result<(), slint::platform::PlatformError> {
 }
 
 //NOTE: feeds.json is actually a jsonl file. This is improper, but it won't parse otherwise, and I can't be assed to fix it. 
-async fn add_feed(feed_url: String) -> Result<(Feed), reqwest::Error> {
+async fn add_feed(feed_url: String) -> Result<Feed, reqwest::Error> {
     let xml = reqwest::get(feed_url).await?.text().await?;
     let channel = Channel::read_from(xml.as_bytes()).unwrap();
     let feed = Feed {
@@ -70,8 +73,4 @@ async fn populate_channels(map: Arc<Mutex<HashMap<String, String>>>, ui: &MainWi
     }).collect();
     let model = ModelRc::new(VecModel::from(channels));
     ui.set_channels(model);
-}
-
-async fn update_hashmap(map: Arc<Mutex<HashMap<String, String>>>, title: String, link: String) {
-    map.lock().await.insert(title, link);
 }
