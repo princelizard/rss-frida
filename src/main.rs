@@ -21,7 +21,7 @@ async fn main() -> Result<(), slint::platform::PlatformError> {
     let channels_map = Arc::new(Mutex::new(generate_hashmap()));
     populate_channels(channels_map.clone(), &ui).await; 
     
-    ui.on_submit_feed(move |feed_url| {
+    ui.on_submit_feed(move |feed_url| { // this needs to generate a ui borrow
         let feed_url = feed_url.to_string();
         let map_clone = Arc::clone(&channels_map);
 
@@ -35,8 +35,15 @@ async fn main() -> Result<(), slint::platform::PlatformError> {
         }
     });
  
-    // DO NOT FORGET ui.as_weak()!!!!
-    ui.on_select_channel(|channel_info| println!("{:?}", channel_info));
+    ui.on_select_channel({
+        let ui_weak = ui.as_weak();
+        move |channel_info| {
+            let ui_weak = ui_weak.clone();
+            tokio::spawn(async move {
+                populate_episodes(channel_info, ui_weak).await;
+            }); 
+        }
+    });
 
     ui.run()
 }
@@ -45,12 +52,12 @@ async fn main() -> Result<(), slint::platform::PlatformError> {
 async fn add_feed(feed_url: String) -> Result<Feed, reqwest::Error> {
     let feed_url_copy = feed_url.clone();
     let xml = reqwest::get(feed_url).await?.text().await?;
-    let channel = Channel::read_from(xml.as_bytes()).unwrap();
+    let contents = Channel::read_from(xml.as_bytes()).unwrap();
     
     let feed = Feed {
-        title: channel.title().to_string(),
+        title: contents.title().to_string(),
         link: feed_url_copy,
-        description: channel.description().to_string(),
+        description: contents.description().to_string(),
     };
     
     let json = serde_json::to_string(&feed).unwrap();
@@ -78,4 +85,14 @@ async fn populate_channels(map: Arc<Mutex<HashMap<String, String>>>, ui: &MainWi
     }).collect();
     let model = ModelRc::new(VecModel::from(channels));
     ui.set_channels(model);
+}
+
+async fn populate_episodes(channel_info: ChannelData, ui: slint::Weak<MainWindow>) {
+    let xml = reqwest::get(channel_info.channel_url.to_string()).await.unwrap().text().await.unwrap();
+    let contents = Channel::read_from(xml.as_bytes()).unwrap();
+    let episodes: Vec<EpisodeData> = contents.items().iter().map(|item| EpisodeData {
+        audio_url: item.enclosure().map(|e| e.url().to_string()).unwrap_or_default().into(),
+        episode_title: item.title().unwrap_or_default().to_string().into(),
+    }).collect();
+    println!("{:?}", episodes);
 }
