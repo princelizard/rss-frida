@@ -19,39 +19,44 @@ struct Feed {
 async fn main() -> Result<(), slint::platform::PlatformError> {
     let ui = MainWindow::new().unwrap();
     let channels_map = Arc::new(Mutex::new(generate_hashmap()));
-    populate_channels(channels_map.clone(), &ui).await;
-
+    populate_channels(channels_map.clone(), &ui).await; 
     
     ui.on_submit_feed(move |feed_url| {
-        let map_clone = Arc::clone(&channels_map);
         let feed_url = feed_url.to_string();
-        
-        if feed_url.ends_with("xml") {
+        let map_clone = Arc::clone(&channels_map);
+
+        if feed_url.ends_with("xml") { //TODO: show the user an angry rectangle on invalid link
             tokio::spawn(async move {
                 if let Ok(feed) = add_feed(feed_url).await {
                     let mut map = map_clone.lock().await;
-                    map.insert(feed.title.clone(), feed.link.clone());
+                    map.insert(feed.title, feed.link);
                 }
             });
         }
     });
+ 
+    // DO NOT FORGET ui.as_weak()!!!!
+    ui.on_select_channel(|channel_info| println!("{:?}", channel_info));
+
     ui.run()
 }
 
-//NOTE: feeds.json is actually a jsonl file. This is improper, but it won't parse otherwise, and I can't be assed to fix it. 
+//NOTE: feeds.json is actually a jsonl file. This is improper, but it won't parse otherwise. #whocare 
 async fn add_feed(feed_url: String) -> Result<Feed, reqwest::Error> {
+    let feed_url_copy = feed_url.clone();
     let xml = reqwest::get(feed_url).await?.text().await?;
     let channel = Channel::read_from(xml.as_bytes()).unwrap();
+    
     let feed = Feed {
         title: channel.title().to_string(),
-        link: channel.link().to_string(),
+        link: feed_url_copy,
         description: channel.description().to_string(),
     };
     
     let json = serde_json::to_string(&feed).unwrap();
     let mut file = File::options().append(true).create(true).open("feeds.json").unwrap();
     writeln!(file, "{}", json).unwrap();
-    // should either regenerate hashmap or update it. do this by returning a true or hashmap reference or something. let the closure decide.
+
     Ok(feed)
 }
 

@@ -15,13 +15,16 @@ component ChannelBox inherits Rectangle {
     height: 30px;
     background: purple;
     in property <ChannelData> channelInfo;
-    
-    TouchArea {}
-    
-    Text {
-        color: white;
-        horizontal-alignment: left;
-        text: channelInfo.channel_title;   
+    callback clicked(ChannelData);
+
+    TouchArea {
+        clicked => {clicked(root.channelInfo);}
+
+        Text {
+            color: white;
+            horizontal-alignment: left;
+            text: channelInfo.channel_title;   
+        }
     }
 }
 
@@ -30,23 +33,27 @@ component EpisodeBox inherits Rectangle {
     background: green;
     in property <EpisodeData> episodeInfo;
     
-    TouchArea {}
+    TouchArea {
     
-    Text {
-        color: white;
-        horizontal-alignment: left;
-        text: episodeInfo.episode_title;   
+        Text {
+            color: white;
+            horizontal-alignment: left;
+            text: episodeInfo.episode_title;   
+        }
     }
 }
 
 export component MainWindow inherits Window {
     title: @tr("rss-frida");
+    
     property <bool> show-new-feed-dialog: false;
     in property <[ChannelData]> channels;
     in property <[EpisodeData]> episodes;
 
     callback submit-feed(string);
-
+    callback select-channel(ChannelData);
+    callback select-episode(EpisodeData);
+    
     min-height: 480px;
     min-width: 640px;
     
@@ -73,6 +80,7 @@ export component MainWindow inherits Window {
                     for channel in root.channels:
                         ChannelBox {
                             channelInfo: channel;
+                            clicked(info) => {root.select-channel(info);}
                         }
                 }
             }
