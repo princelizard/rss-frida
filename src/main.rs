@@ -1,7 +1,9 @@
 use std::fs::{self, File};
 use std::io::Write;
 use std::collections::HashMap;
+use std::process::Command;
 use rss::Channel;
+use serde::Serialize;
 use slint::{VecModel, ModelRc};
 use std::sync::{Arc, Mutex};
 
@@ -43,6 +45,9 @@ fn main() -> Result<(), slint::platform::PlatformError> {
         }
     });
 
+    ui.on_select_episode(|episode_info|{
+        open_browser(&episode_info.audio_url.into());
+    } );
     ui.run()
 }
 
@@ -101,4 +106,9 @@ fn populate_episodes(channel_info: ChannelData, ui: slint::Weak<MainWindow>) {
             ui.set_episodes(episodes);
         }
     }).unwrap();
+}
+
+fn open_browser(url: &String){
+    Command::new("open").arg(url).spawn().ok();
+
 }

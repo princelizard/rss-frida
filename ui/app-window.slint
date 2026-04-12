@@ -30,14 +30,18 @@ component ChannelBox inherits Rectangle {
 
 component EpisodeBox inherits Rectangle {
     height: 30px;
+    width:  (640px / 2) - 10px;
     background: green;
     in property <EpisodeData> episodeInfo;
+    callback clicked (EpisodeData);
     
     TouchArea {
-    
+        clicked => {clicked(root.episodeInfo);}
+
         Text {
             color: white;
             horizontal-alignment: left;
+            wrap: word-wrap;
             text: episodeInfo.episode_title;   
         }
     }
@@ -91,10 +95,12 @@ export component MainWindow inherits Window {
             background: root.background.darker(0.05);
 
             ScrollView {
+                width: parent.width;
                 VerticalLayout {
                     for episode in root.episodes:
                     EpisodeBox{
                         episodeInfo: episode;
+                        clicked(info) => {root.select-episode(episode)}
                     }
                 }
             }
