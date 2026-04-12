@@ -89,6 +89,7 @@ fn populate_channels(map: Arc<Mutex<HashMap<String, String>>>, ui: &MainWindow) 
 fn populate_episodes(channel_info: ChannelData, ui: slint::Weak<MainWindow>) {
     let xml = ureq::get(channel_info.channel_url.to_string()).call().unwrap().body_mut().read_to_string().unwrap();
     let contents = Channel::read_from(xml.as_bytes()).unwrap();
+    
     let episodes: Vec<EpisodeData> = contents.items().iter().map(|item| EpisodeData {
         audio_url: item.enclosure().map(|e| e.url().to_string()).unwrap_or_default().into(),
         episode_title: item.title().unwrap_or_default().to_string().into(),
