@@ -7,8 +7,9 @@ use rss::Channel;
 use serde::Serialize;
 use slint::{VecModel, ModelRc};
 use std::sync::{Arc, Mutex};
+use rodio::{Decoder, MixerDeviceSink, Source, source};
+use audio::AudioPlayer;
 
-use crate::audio::play_url;
 //implementing native audio was fucked. try url2audio i think
 slint::include_modules!();
 
@@ -48,10 +49,18 @@ fn main() -> Result<(), slint::platform::PlatformError> {
         }
     });
 
-    ui.on_select_episode(|episode_info|{
-        //open_browser(&episode_info.audio_url.into());
-        std::thread::spawn(move || play_url(episode_info.audio_url.as_str()));  
-    } );
+    let player = Arc::new(AudioPlayer::new());
+    ui.on_select_episode({
+    let player = Arc::clone(&player);
+    move |episode_info| {
+        let player = Arc::clone(&player);
+        let url = episode_info.audio_url.to_string();
+        std::thread::spawn(move || {
+            player.load_url(&url);
+        });
+    }
+});
+
     ui.run()
 }
 
