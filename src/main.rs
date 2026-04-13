@@ -1,3 +1,4 @@
+mod audio;
 use std::fs::{self, File};
 use std::io::Write;
 use std::collections::HashMap;
@@ -7,6 +8,8 @@ use serde::Serialize;
 use slint::{VecModel, ModelRc};
 use std::sync::{Arc, Mutex};
 
+use crate::audio::play_url;
+//implementing native audio was fucked. try url2audio i think
 slint::include_modules!();
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -46,7 +49,8 @@ fn main() -> Result<(), slint::platform::PlatformError> {
     });
 
     ui.on_select_episode(|episode_info|{
-        open_browser(&episode_info.audio_url.into());
+        //open_browser(&episode_info.audio_url.into());
+        std::thread::spawn(move || play_url(episode_info.audio_url.into()));  
     } );
     ui.run()
 }
@@ -115,3 +119,4 @@ fn open_browser(url: &String){Command::new("cmd").args(["/c", "start", url]).spa
 
 #[cfg(target_os = "linux")]
 fn open_browser(url: &String){Command::new("xdg-open").arg(url).spawn().unwrap();}
+
