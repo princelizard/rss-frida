@@ -2,17 +2,13 @@ use std::io::{Cursor, Read};
 use rodio::{Decoder, MixerDeviceSink, Source, source};
 
 
-pub fn play_url(url: String){
+pub fn play_url(url: &str) {
     let handle = rodio::DeviceSinkBuilder::open_default_sink().unwrap();
-    let player = rodio::Player::connect_new(&handle.mixer());
-    let mut res = ureq::get(&url).call().unwrap().into_body().into_reader();
-    
     let mut buf = Vec::new();
-    let mut res = ureq::get(url).call().unwrap().into_body().into_reader();
-    res.read_to_end(&mut buf).unwrap();
+    ureq::get(url).call().unwrap()
+        .into_body().into_reader()
+        .read_to_end(&mut buf).unwrap();
 
-    let cursor = Cursor::new(buf);
-    let source = Decoder::new(cursor).unwrap();
-    player.append(source);
+    let player = rodio::play(&handle.mixer(), Cursor::new(buf)).unwrap();
     player.sleep_until_end();
 }

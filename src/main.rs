@@ -50,7 +50,7 @@ fn main() -> Result<(), slint::platform::PlatformError> {
 
     ui.on_select_episode(|episode_info|{
         //open_browser(&episode_info.audio_url.into());
-        std::thread::spawn(move || play_url(episode_info.audio_url.into()));  
+        std::thread::spawn(move || play_url(episode_info.audio_url.as_str()));  
     } );
     ui.run()
 }
