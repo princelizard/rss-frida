@@ -37,10 +37,7 @@ impl AudioPlayer {
     }
 
     pub fn seek(&self, pos: Duration) {
-        match self.player.try_seek(pos) {
-            Ok(()) => {}
-            Err(e) => eprintln!("Seek error: {e}"),
-        }
+        self.player.try_seek(pos).unwrap_or_default();
     }
 
     pub fn position(&self) -> Duration {

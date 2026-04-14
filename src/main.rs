@@ -120,12 +120,3 @@ fn populate_episodes(channel_info: ChannelData, ui: slint::Weak<MainWindow>) {
         }
     }).unwrap();
 }
-#[cfg(target_os = "macos")]
-fn open_browser(url: &String){Command::new("open").arg(url).spawn().unwrap();}
-
-#[cfg(target_os = "windows")]
-fn open_browser(url: &String){Command::new("cmd").args(["/c", "start", url]).spawn().unwrap();}
-
-#[cfg(target_os = "linux")]
-fn open_browser(url: &String){Command::new("xdg-open").arg(url).spawn().unwrap();}
-
