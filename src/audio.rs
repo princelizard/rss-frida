@@ -4,7 +4,7 @@ use std::time::Duration;
 
 pub struct AudioPlayer {
     player: Player,
-    _handle: rodio::MixerDeviceSink,  // must stay alive!
+    _handle: rodio::MixerDeviceSink,
 }
 
 impl AudioPlayer {
